@@ -1,0 +1,65 @@
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nginx
+    restart: always
+    ports: 
+      - "8080:80"
+    depends_on:
+      db:
+         condition: service_healthy
+      
+      
+         
+    networks:
+      - desafionet
+ 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app
+  
+    ports:
+      - "3000:3000"
+    networks:
+      - desafionet
+    depends_on:
+     db:
+       condition: service_healthy
+    volumes:
+      - ./app:/usr/src/app
+    restart: always
+    tty: true
+  db:
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+
+    volumes:
+      - ./dbdata:/var/lib/mysql:rw
+    environment:
+      - MYSQL_DATABASE=desafio_fullcycle
+      - MYSQL_ROOT_PASSWORD=root
+  
+    ports:
+      - "3307:3306"
+      
+    networks:
+      - desafionet
+    healthcheck:
+        test: ["CMD", "mysql", "--user=root", "--password=root", "--execute=SELECT 1"]
+        interval: 5s
+        timeout: 20s
+        retries: 3
+    
+networks:
+  desafionet:
+    driver: bridge

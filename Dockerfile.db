@@ -1,0 +1,11 @@
+FROM mysql:5.7
+
+CMD [ "--innodb-use-native-aio=0" ]
+
+
+ENV MYSQL_DATABASE=desafio_fullcycle
+ENV MYSQL_ROOT_PASSWORD=root
+
+RUN echo "CREATE DATABASE IF NOT EXISTS desafio_fullcycle;" > /docker-entrypoint-initdb.d/init.sql \
+    && echo "USE desafio_fullcycle;" >> /docker-entrypoint-initdb.d/init.sql \
+    && echo "CREATE TABLE IF NOT EXISTS people (id INT(3) AUTO_INCREMENT PRIMARY KEY, nome VARCHAR(60) NOT NULL);" >> /docker-entrypoint-initdb.d/init.sql
